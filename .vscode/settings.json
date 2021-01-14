@@ -1,0 +1,8 @@
+{
+    "files.associations": {
+        "sstream": "c",
+        "*.tcc": "cpp",
+        "fstream": "cpp",
+        "system_error": "c"
+    }
+}

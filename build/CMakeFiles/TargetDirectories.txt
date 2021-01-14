@@ -1,0 +1,3 @@
+/mnt/e/Studia/Sem5/sk/hangman-multiplayer/build/CMakeFiles/rebuild_cache.dir
+/mnt/e/Studia/Sem5/sk/hangman-multiplayer/build/CMakeFiles/edit_cache.dir
+/mnt/e/Studia/Sem5/sk/hangman-multiplayer/build/CMakeFiles/server.dir

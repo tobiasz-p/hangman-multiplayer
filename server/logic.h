@@ -1,0 +1,4 @@
+#ifndef HANGMAN_LOGIC_H
+#define HANGMAN_LOGIC_H
+
+#endif //HANGMAN_LOGIC_H
