@@ -172,7 +172,7 @@ void run() {
             }
             if (init_game ==0){
                 // Initialize the round
-                words_fd = openFile("../words200.txt");
+                words_fd = openFile("../words.txt");
                 words_list = readFile(words_fd, &words_total);
                 close(words_fd);
                 srand(time(NULL));
@@ -183,7 +183,7 @@ void run() {
                 strcpy(selected_word, words_list[r]);
                 strcpy(hidden_word, get_dashed_word(selected_word));
                 printf("Selected word %s", selected_word);
-                //puts("\n");
+                puts("\n");
 
                 reset_round_points(clients, actual);
                 for (int i=0; i<actual; i++){ // send actual points
@@ -340,8 +340,8 @@ void run() {
                             strncpy(buffer, "# dc", BUF_SIZE - 1);
                             char str[4];
                             sprintf(str, "# %d", i);
-                            strncat(buffer, str, BUF_SIZE - 1);
-                            printf("Client %d disconnected", i);
+                            strncat(buffer, str, BUF_SIZE - strlen(buffer)- 1);
+                            printf("Client %d disconnected\n", i);
                             broadcast_message(clients, actual, buffer);
                         }
                         else if (str_equals(buffer, "ready")){
@@ -385,9 +385,9 @@ void run() {
                             }
 
                             if (clients[i].available_tries == 0) {
+                                broadcast_message(clients, actual, buffer);
                                 clients[i].points-=3;
                                 points_to_buffer(clients[i],i, buffer);
-                                broadcast_message(clients, actual, buffer);
                             }
                             broadcast_message(clients, actual, buffer);
                         }
