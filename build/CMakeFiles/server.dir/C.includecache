@@ -10,10 +10,6 @@
 stdbool.h
 -
 
-/mnt/e/Studia/Sem5/sk/hangman-multiplayer/server/logic.c
-stdbool.h
--
-
 /mnt/e/Studia/Sem5/sk/hangman-multiplayer/server/main.c
 stdio.h
 -
@@ -31,10 +27,12 @@ signal.h
 -
 time.h
 -
+ctype.h
+-
+pthread.h
+-
 server.h
 /mnt/e/Studia/Sem5/sk/hangman-multiplayer/server/server.h
-logic.c
-/mnt/e/Studia/Sem5/sk/hangman-multiplayer/server/logic.c
 
 /mnt/e/Studia/Sem5/sk/hangman-multiplayer/server/server.h
 winsock2.h

@@ -59,4 +59,23 @@ int openFile(const char * path);
 
 char * get_dashed_word(char * word);
 
+void close_socket(int fd);
+
+void append(char* s, char c);
+
+void points_to_buffer(Client client,int i, char *buffer);
+
+int checkAnswer(char letterTyped, char * word, char * dashedWord);
+
+Client get_winner(Client *clients, int all_players);
+
+void reset_players(Client clients[MAX_CLIENTS], int actual);
+
+void reset_round_points(Client clients[MAX_CLIENTS], int actual);
+
+void set_all_not_ready(Client clients[MAX_CLIENTS], int actual, int *ready_players);
+
+void set_all_ready(Client clients[MAX_CLIENTS], int actual, int *ready_players);
+
+bool allLost(Client clients[MAX_CLIENTS], int all);
 #endif
