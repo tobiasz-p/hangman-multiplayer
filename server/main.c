@@ -132,7 +132,7 @@ void run() {
     int max = sock;
     Client clients[MAX_CLIENTS];    // An array for all clients
     int words_total = 0, words_fd;    // Used to load word list
-    char ** wordsList;
+    char ** words_list;
     char selected_word[100];
     char hidden_word[100];
     char wrong_letters[26] ="\0";
@@ -172,15 +172,15 @@ void run() {
             }
             if (init_game ==0){
                 // Initialize the round
-                words_fd = openFile("../words.txt");
-                wordsList = readFile(words_fd, &words_total);
+                words_fd = openFile("../words200.txt");
+                words_list = readFile(words_fd, &words_total);
                 close(words_fd);
                 srand(time(NULL));
                 int r = rand() % words_total;
 
                 broadcast_message(clients, actual, "# reset");
                 broadcast_message(clients, actual, "# message# Let's the round begin!");
-                strcpy(selected_word, wordsList[r]);
+                strcpy(selected_word, words_list[r]);
                 strcpy(hidden_word, get_dashed_word(selected_word));
                 printf("Selected word %s", selected_word);
                 //puts("\n");
@@ -460,7 +460,7 @@ char ** readFile(int fileDescriptor, int * words_total) {
     ssize_t bytesRead;
 
     // Setting up pointers
-    char ** wordsList = malloc(20 * sizeof(char*));
+    char ** words_list = malloc(20 * sizeof(char*));
     *words_total = 0;
 
     // Reading inside file
@@ -474,15 +474,15 @@ char ** readFile(int fileDescriptor, int * words_total) {
         } else if (bytesRead >= sizeof(char)) {
             if (cursor == 0) {
                 // Allocate some memory to catch the word
-                wordsList[*words_total] = (char *) malloc(sizeof(char) * 30);
+                words_list[*words_total] = (char *) malloc(sizeof(char) * 30);
             }
 
             if (temp == '\n') {
                 // Finish the current word and update the word count
-                wordsList[*words_total][cursor] = '\0';
+                words_list[*words_total][cursor] = '\0';
 
                 // Reallocate unused memory
-                wordsList[*words_total] = (char*)realloc(wordsList[*words_total], (cursor+1)* sizeof(char));
+                words_list[*words_total] = (char*)realloc(words_list[*words_total], (cursor+1)* sizeof(char));
 
                 // Update the word count
                 (*words_total)++;
@@ -491,7 +491,7 @@ char ** readFile(int fileDescriptor, int * words_total) {
                 cursor = 0;
             } else {
                 // Write the letter and update the cursor
-                wordsList[*words_total][cursor++] = temp;
+                words_list[*words_total][cursor++] = temp;
             }
         }
     } while (bytesRead >= sizeof(char));
@@ -500,7 +500,7 @@ char ** readFile(int fileDescriptor, int * words_total) {
     if (*words_total > 0)
         (*words_total)++;
 
-    return wordsList;
+    return words_list;
 }
 
 void clear_clients(Client *clients, int actual) {
