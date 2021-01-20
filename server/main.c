@@ -464,7 +464,6 @@ int openFile(const char * path) {
         printf("Error while opening file\n");
         exit(-1);
     }
-
     return fileDescriptor;
 }
 
