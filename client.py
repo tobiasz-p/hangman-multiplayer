@@ -214,6 +214,8 @@ def rules():
                               "* You have 6 trials each round. If you guess wrong, you will lose one.\n\n"
                               "* If you run out of trials you will need to wait when the round is over. " +
                               "You will also get -3 points!\n\n" +
+                              "After first guess everyone has 20s for next guess. Then new word will be drawn " +
+                              "and nobody will get points earned this round\n\n" +
                               "* If you have four times number of players points and everyone has less than you" +
                               " - you win.")
 
