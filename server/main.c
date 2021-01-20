@@ -184,7 +184,7 @@ void run() {
                 strcpy(hidden_word, get_dashed_word(selected_word));
                 printf("Selected word %s", selected_word);
                 puts("\n");
-
+                
                 reset_round_points(clients, actual);
                 for (int i=0; i<actual; i++){ // send actual points
                     points_to_buffer(clients[i], i, buffer);
