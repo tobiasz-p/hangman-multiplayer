@@ -353,11 +353,13 @@ void run() {
                         }
                         else if (client.available_tries > 0 && init_game == -1 && client.is_ready){
                             int replacedLetters = checkAnswer(tolower(buffer[0]), selected_word, hidden_word);
-                            alarm(20);
+                            
                             // Check results
                             if (replacedLetters == 0) {
+                                
                                 // No letter has been replaced == wrong answer
                                 if (strpbrk(wrong_letters, buffer)==0 && strpbrk(hidden_word, buffer)==0) {
+                                    alarm(20);
                                     append(wrong_letters, buffer[0]);
                                     strncpy(buffer, "# available_tries", BUF_SIZE - 1);
                                     char str[4];
@@ -369,6 +371,7 @@ void run() {
 
                             }
                             else {
+                                alarm(20);
                                 // Good guess
                                 clients[i].points++;
                                 clients[i].round_points++;
@@ -539,8 +542,7 @@ void remove_client(Client *clients, int to_remove, int *actual) {
     
 }
 
-void
-send_message_to_all_clients(Client *clients, Client sender, int actual, const char *buffer, char from_server) {
+void send_message_to_all_clients(Client *clients, Client sender, int actual, const char *buffer, char from_server) {
     int i = 0;
     char message[BUF_SIZE];
     message[0] = 0;
@@ -556,8 +558,7 @@ send_message_to_all_clients(Client *clients, Client sender, int actual, const ch
     }
 }
 
-void
-broadcast_message(Client clients[MAX_CLIENTS], int actual, const char *buffer) {
+void broadcast_message(Client clients[MAX_CLIENTS], int actual, const char *buffer) {
     for (int i = 0; i < actual; i++) {       
         write_client(clients[i].sock, buffer); 
     }
