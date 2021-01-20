@@ -19,6 +19,7 @@ int init_game = 1;
 
 static volatile int keep_running = 1;
 
+
 int checkAnswer(char letterTyped, char * word, char * dashedWord) {
     size_t wordLength = strlen(word);
     int replacedLetters = 0;
@@ -33,6 +34,7 @@ int checkAnswer(char letterTyped, char * word, char * dashedWord) {
     }
     return replacedLetters;
 }
+
 
 Client get_winner(Client *clients, int all_players) {
     int winners = 0;
@@ -55,6 +57,7 @@ Client get_winner(Client *clients, int all_players) {
     return winner;
 }
 
+
 void reset_players(Client clients[MAX_CLIENTS], int actual){
     for (int i = 0; i < actual; i++) {
         clients[i].points=0;
@@ -62,11 +65,13 @@ void reset_players(Client clients[MAX_CLIENTS], int actual){
     }
 }
 
+
 void reset_round_points(Client clients[MAX_CLIENTS], int actual){
     for (int i = 0; i < actual; i++) {
         clients[i].round_points=0;
     }
 }
+
 
 void set_all_not_ready(Client clients[MAX_CLIENTS], int actual, int *ready_players){
     for (int i=0; i<actual; i++){
@@ -75,12 +80,14 @@ void set_all_not_ready(Client clients[MAX_CLIENTS], int actual, int *ready_playe
     *ready_players = 0;
 }
 
+
 void set_all_ready(Client clients[MAX_CLIENTS], int actual, int *ready_players){
     for (int i=0; i<actual; i++){
         clients[i].is_ready=true;
     }
     *ready_players = actual;
 }
+
 
 bool allLost(Client clients[MAX_CLIENTS], int all){
     int losers = 0;
@@ -106,14 +113,17 @@ void* wait(){
     return NULL;
 }
 
+
 void sig_handler(){
   printf("Timeout\n");
 }
+
 
 void int_handler() {
     keep_running = 0;
     puts("Server closed");
 }
+
 
 void winner_message(Client clients[MAX_CLIENTS], Client winner, int actual){
     alarm(0);
@@ -435,6 +445,7 @@ void points_to_buffer(Client client,int i, char *buffer){
     strncat(buffer, str, BUF_SIZE - strlen(buffer)- 1);
 }
 
+
 char * get_dashed_word(char * word) {
     size_t wordLength = strlen(word);
 
@@ -444,6 +455,7 @@ char * get_dashed_word(char * word) {
     }
     return hidden_word;
 }
+
 
 int openFile(const char * path) {
     int fileDescriptor = open(path, O_RDONLY);
@@ -455,6 +467,7 @@ int openFile(const char * path) {
 
     return fileDescriptor;
 }
+
 
 char ** readFile(int fileDescriptor, int * words_total) {
     // Internal variables
@@ -506,6 +519,7 @@ char ** readFile(int fileDescriptor, int * words_total) {
     return words_list;
 }
 
+
 void clear_clients(Client *clients, int actual) {
     int i = 0;
     for (i = 0; i < actual; i++) {
@@ -513,6 +527,7 @@ void clear_clients(Client *clients, int actual) {
         printf("Disconnected %s\n", clients[i].name);
     }
 } 
+
 
 int getSO_ERROR(int fd) {
    int err = 1;
@@ -523,6 +538,7 @@ int getSO_ERROR(int fd) {
       errno = err;              // set errno to the socket SO_ERROR
    return err;
 }
+
 
 void close_socket(int fd) {      // *not* the Windows closesocket()
     if (fd >= 0) {
@@ -535,12 +551,14 @@ void close_socket(int fd) {      // *not* the Windows closesocket()
     }
 }
 
+
 void remove_client(Client *clients, int to_remove, int *actual) {
     memmove(clients + to_remove, clients + to_remove + 1,
             (*actual - to_remove - 1) * sizeof(Client));  // We remove the client from the array
     (*actual)--;    // Reducing the number of clients
     
 }
+
 
 void send_message_to_all_clients(Client *clients, Client sender, int actual, const char *buffer, char from_server) {
     int i = 0;
@@ -594,6 +612,7 @@ int init_connection(void) {
     return sock;
 }
 
+
 int str_equals(char *str1, char *str2) {
     if (!strcmp(str1, str2))
         return 1;
@@ -615,12 +634,14 @@ int read_client(SOCKET sock, char *buffer) {
     return n;
 }
 
+
 void write_client(SOCKET sock, const char *buffer) {
     if (send(sock, buffer, strlen(buffer), 0) < 0) {
         perror("send error");
         exit(errno);
     }
 }
+
 
 int main() {
     signal(SIGALRM, sig_handler);
