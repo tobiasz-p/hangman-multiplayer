@@ -1,7 +1,8 @@
 from socket import *
-import threading
 from tkinter import *
 from tkinter import messagebox
+import threading
+import sys
 
 global name
 global client_sock
@@ -216,7 +217,7 @@ def menu():
 def rules():
     messagebox.showinfo("Help", "Rules of the game:\n\n" +
                               "* You are guessing hidden word\n\n" +
-                              "* If you write more than 1 letters in textbox, only first will be checked!\n\n" +
+                              "* If you write more than 1 letter in textbox, only first will be checked!\n\n" +
                               "* For every guessed letter you earn 1 point\n\n" +
                               "* You have 6 trials each round. If you guess wrong, you will lose one.\n\n"
                               "* If you run out of trials you will need to wait when the round is over. " +
