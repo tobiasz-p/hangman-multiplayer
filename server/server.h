@@ -78,4 +78,6 @@ void set_all_not_ready(Client clients[MAX_CLIENTS], int actual, int *ready_playe
 void set_all_ready(Client clients[MAX_CLIENTS], int actual, int *ready_players);
 
 bool allLost(Client clients[MAX_CLIENTS], int all);
+
+void send_players(Client *clients, int actual, char *buffer);
 #endif

@@ -6,15 +6,15 @@ from tkinter import messagebox
 global name
 global client_sock
 
-name = ''
 
+name = ''
 user_points = []
 
 server_ip = '127.0.0.1'
 server_port = 8780
 
 
-def receive_msg(sock, chat):
+def receive_msg(sock, chat, canvas, users, points):
     print("started")
     quit = False
     user_names = ["Free slot" for _ in range(6)]
@@ -68,6 +68,7 @@ def receive_msg(sock, chat):
                 user_names[int(tokens[i + 1])] = tokens[i + 2]
                 points[int(tokens[i + 1])].delete(1.0, 'end')
                 points[int(tokens[i + 1])].insert(INSERT, 0)
+                update_players(user_names)
             elif token == 'wait':
                 messagebox.showinfo("Wait", "Please wait for next round!")
             elif token == 'wrong_letters':
@@ -78,8 +79,7 @@ def receive_msg(sock, chat):
                 for j, (canva, user, point) in enumerate(zip(canvas, users, points)):
                     canva.delete("all")
                     canva.create_image(37, 99, image=hangman_img[6])
-                    user.delete(1.0, 'end')
-                    user.insert(INSERT, user_names[j])
+                update_players(user_names)
             elif token == "message":
                 text.insert(INSERT, tokens[i + 1] + "\n")
                 text.see(END)
@@ -89,6 +89,12 @@ def receive_msg(sock, chat):
 
     print("I am done wih thread")
     chat.quit()
+
+
+def update_players(user_names):
+    for i, user in enumerate(users):
+        user.delete(1.0, 'end')
+        user.insert(INSERT, user_names[i])
 
 
 def submit():
@@ -157,7 +163,7 @@ def connect():
 
     root = Tk()
 
-    root.title("Welcome!")
+    root.title("Connect")
     root.maxsize(width=270, height=48)
     root.geometry("270x48+%d+%d" % (150, 250))
 
@@ -179,7 +185,7 @@ def menu():
 
     menu_w = Tk()
 
-    menu_w.title("Welcome to hangman game!")
+    menu_w.title("Hangman")
     menu_w.maxsize(width=1200, height=600)
     # menu_w.geometry("305x230+%d+%d" % ((500), (250)))
 
@@ -210,6 +216,7 @@ def menu():
 def rules():
     messagebox.showinfo("Help", "Rules of the game:\n\n" +
                               "* You are guessing hidden word\n\n" +
+                              "* If you write more than 1 letters in textbox, only first will be checked!\n\n" +
                               "* For every guessed letter you earn 1 point\n\n" +
                               "* You have 6 trials each round. If you guess wrong, you will lose one.\n\n"
                               "* If you run out of trials you will need to wait when the round is over. " +
@@ -249,7 +256,7 @@ if __name__ == "__main__":
         chat.title("Hangman game")
         chat.minsize(width=850, height=800)
 
-        hangman = Label(chat, text="Welcome to Hangman, " + name + "!\n", font=("Arial", 15))
+        hangman = Label(chat, text="Hello, " + name + "!\n", font=("Arial", 15))
         hangman.pack(side=TOP)
 
         top_frame = Frame(chat, bg="dark green")
@@ -279,8 +286,7 @@ if __name__ == "__main__":
         btn_quit.pack(side=RIGHT)
         btn_quit.config(image=img_quit)
 
-        rt = threading.Thread(target=receive_msg, args=(client_sock, top_frame))
-        rt.start()
+
 
         block = Text(side_frame, width=40, height=1, bg="grey")
         block.grid(row=1, column=0, columnspan=4, stick=W)
@@ -303,6 +309,10 @@ if __name__ == "__main__":
             user.insert(INSERT, "Free slot")
             point.grid(row=5 + 2 * (i // 2) + 1, column=2 * (i % 2) + 1, stick='W')
             point.insert(INSERT, "0")
+
+        rt = threading.Thread(target=receive_msg, args=(client_sock, top_frame, canvas, users, points))
+        rt.start()
+
         chat.mainloop()
 
         rt.join()

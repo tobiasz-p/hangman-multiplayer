@@ -131,7 +131,7 @@ void winner_message(Client clients[MAX_CLIENTS], Client winner, int actual){
     strncpy(buffer, "# winner# ", BUF_SIZE - 1);
     strncat(buffer, winner.name, BUF_SIZE - strlen(buffer) - 1);
     broadcast_message(clients, actual, buffer);
-    printf("The winner is %s", winner.name);
+    printf("The winner is %s\n", winner.name);
 }
 
 
@@ -146,7 +146,7 @@ void run() {
     char selected_word[100];
     char hidden_word[100];
     char wrong_letters[26] ="\0";
-    int game_start = 1;
+    bool game_start = true;
     int flags;
     pthread_t thread;
     fd_set rdfs;
@@ -166,21 +166,11 @@ void run() {
 
                 if (game_start){ // first round of the game
                     set_all_ready(clients, actual, &ready_players);
-                    printf("ready: %d\n", ready_players);
-                    printf("actual: %d\n", actual);
-                    for (int i =0; i < actual; i++){ // send all users in game
-                        strncpy(buffer, "# user", BUF_SIZE - 1);
-                        char str[7];
-                        sprintf(str, "# %d# ", i);
-                        strncat(buffer, str, BUF_SIZE - 1);
-                        strncat(buffer, clients[i].name, BUF_SIZE - strlen(buffer) - 1);
-                        broadcast_message(clients, actual, buffer);                    
-                    }
-                    
-                    game_start = 0;
+                    send_players(clients, actual, buffer);
+                    game_start = false;
                 }
             }
-            if (init_game ==0){
+            if (init_game == 0){
                 // Initialize the round
                 words_fd = openFile("../words.txt");
                 words_list = readFile(words_fd, &words_total);
@@ -211,7 +201,6 @@ void run() {
             }
             if (init_game == -1){ // round in progress
                 if (allLost(clients, ready_players)){
-                   // broadcast_message(clients, actual, "# all_lost");
                     init_game = 1;
                     continue;
                 }
@@ -319,16 +308,12 @@ void run() {
                     strncat(buffer, c.name, strlen(buffer) - BUF_SIZE - 1);
                     broadcast_message(clients, actual, buffer);
                     printf("%s connected\n", c.name);
-                    if (game_start == -1){
-                        c.available_tries = 6;
-                    }
-                    else{
-                        c.available_tries = 0;
-                    }
+                    c.available_tries = 0;
                     c.points = 0;
                     c.is_ready = false;
                     clients[actual] = c;
                     actual++;
+                    send_players(clients, actual, buffer);
                 }
                 else{
                     strncpy(buffer, "# room_full", BUF_SIZE - 1);
@@ -355,20 +340,20 @@ void run() {
                             broadcast_message(clients, actual, buffer);
                         }
                         else if (str_equals(buffer, "ready")){
-                            if(!clients[i].is_ready){
+                            if (init_game == -1){
+                                strncpy(buffer, "# wait", BUF_SIZE - 1);
+                                write_client(client.sock, buffer);
+                            }
+                            else if(!clients[i].is_ready){
                                 clients[i].is_ready = true;
                                 ready_players++;
                                 printf("%s is ready\n", clients[i].name);
                             }
                         }
                         else if (client.available_tries > 0 && init_game == -1 && client.is_ready){
-                            int replacedLetters = checkAnswer(tolower(buffer[0]), selected_word, hidden_word);
-                            
-                            // Check results
-                            if (replacedLetters == 0) {
-                                
-                                // No letter has been replaced == wrong answer
-                                if (strpbrk(wrong_letters, buffer)==0 && strpbrk(hidden_word, buffer)==0) {
+                            int replacedLetters = checkAnswer(tolower(buffer[0]), selected_word, hidden_word);             
+                            if (replacedLetters == 0) { // Check results                             
+                                if (strpbrk(wrong_letters, buffer)==0 && strpbrk(hidden_word, buffer)==0) { // wrong answer
                                     alarm(20);
                                     append(wrong_letters, buffer[0]);
                                     strncpy(buffer, "# available_tries", BUF_SIZE - 1);
@@ -378,17 +363,15 @@ void run() {
                                     sprintf(str, "# %d", --clients[i].available_tries);
                                     strncat(buffer, str, BUF_SIZE - strlen(buffer) - 1);
                                 }
-
                             }
                             else {
                                 alarm(20);
                                 // Good guess
                                 clients[i].points++;
                                 clients[i].round_points++;
-                                points_to_buffer(clients[i],i, buffer);
+                                points_to_buffer(clients[i], i, buffer);
                                 broadcast_message(clients, actual, buffer);
                             }
-
                             // Check the game state
                             if (strcmp(hidden_word, selected_word) == 0) {
                                 alarm(0);
@@ -420,12 +403,25 @@ void run() {
         init_game = 1;
         set_all_not_ready(clients, actual, &ready_players);
         reset_players(clients, actual);
-        printf("ready: %d", ready_players);
-        game_start = 1;
+        game_start = true;
     }
+    strncat(buffer, "stop", BUF_SIZE - 1);
+    broadcast_message(clients, actual, buffer);
     clear_clients(clients, actual);
     close_socket(sock);
     puts("Server closed");
+}
+
+
+void send_players(Client *clients, int actual, char *buffer){
+    char str[7];
+    for (int i =0; i < actual; i++){ // send all users in game
+        strncpy(buffer, "# user", BUF_SIZE - 1);
+        sprintf(str, "# %d# ", i);
+        strncat(buffer, str, BUF_SIZE - 1);
+        strncat(buffer, clients[i].name, BUF_SIZE - strlen(buffer) - 1);
+        broadcast_message(clients, actual, buffer);                    
+    }
 }
 
 
@@ -446,7 +442,7 @@ void points_to_buffer(Client client,int i, char *buffer){
 }
 
 
-char * get_dashed_word(char * word) {
+char *get_dashed_word(char * word) {
     size_t wordLength = strlen(word);
 
     char * hidden_word = malloc(wordLength * sizeof(char));
@@ -469,49 +465,36 @@ int openFile(const char * path) {
 
 
 char ** readFile(int fileDescriptor, int * words_total) {
-    // Internal variables
     char temp = 0;
     int cursor = 0;
     ssize_t bytesRead;
 
-    // Setting up pointers
     char ** words_list = malloc(20 * sizeof(char*));
     *words_total = 0;
 
-    // Reading inside file
     do {
         bytesRead = read(fileDescriptor, &temp, sizeof(char));
 
         if (bytesRead == -1) {
-            // Error while reading file
             printf("Error while reading file\n");
             exit(-1);
         } else if (bytesRead >= sizeof(char)) {
             if (cursor == 0) {
-                // Allocate some memory to catch the word
                 words_list[*words_total] = (char *) malloc(sizeof(char) * 30);
             }
 
             if (temp == '\n') {
-                // Finish the current word and update the word count
                 words_list[*words_total][cursor] = '\0';
-
-                // Reallocate unused memory
                 words_list[*words_total] = (char*)realloc(words_list[*words_total], (cursor+1)* sizeof(char));
-
-                // Update the word count
                 (*words_total)++;
-
-                // Reset the cursor
                 cursor = 0;
-            } else {
-                // Write the letter and update the cursor
+            } 
+            else {
                 words_list[*words_total][cursor++] = temp;
             }
         }
     } while (bytesRead >= sizeof(char));
 
-    // Update the word count
     if (*words_total > 0)
         (*words_total)++;
 
