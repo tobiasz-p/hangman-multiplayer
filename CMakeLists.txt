@@ -6,8 +6,7 @@ set(CMAKE_CXX_STANDARD 11)
 set(SERVER_FILES
         server/client.h
         server/main.c
-        server/server.h 
-		server/logic.h)
+        server/server.h)
 
 add_executable(server ${SERVER_FILES})
 

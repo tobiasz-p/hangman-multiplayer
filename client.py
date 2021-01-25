@@ -188,7 +188,6 @@ def menu():
 
     menu_w.title("Hangman")
     menu_w.maxsize(width=1200, height=600)
-    # menu_w.geometry("305x230+%d+%d" % ((500), (250)))
 
     img = PhotoImage(file="images/main.png")
     img_play = PhotoImage(file="images/play.png")

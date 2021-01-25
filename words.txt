@@ -16,5 +16,5 @@ kolacja
 kot
 wisiorek
 pan
-profesor
+toast
 pulpit

@@ -215,12 +215,6 @@ Hangman_BINARY_DIR:STATIC=/mnt/e/Studia/Sem5/sk/hangman-multiplayer/build
 //Value Computed by CMake
 Hangman_SOURCE_DIR:STATIC=/mnt/e/Studia/Sem5/sk/hangman-multiplayer
 
-//Value Computed by CMake
-TCPServer_BINARY_DIR:STATIC=/mnt/e/Studia/Sem5/sk/hangman-multiplayer/build
-
-//Value Computed by CMake
-TCPServer_SOURCE_DIR:STATIC=/mnt/e/Studia/Sem5/sk/hangman-multiplayer
-
 
 ########################
 # INTERNAL cache entries
